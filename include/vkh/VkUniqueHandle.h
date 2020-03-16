@@ -19,7 +19,7 @@ namespace vkh {
                 _release = other._release;
 
                 other._handle = VK_NULL_HANDLE;
-                other._release = [](T, VkDevice, const VkAllocationCallbacks*){};
+                other._release = [](T){};
             }
 
             VkUniqueHandleBase& operator=(VkUniqueHandleBase<T>&& other) {
@@ -29,7 +29,7 @@ namespace vkh {
                 _release = other._release;
 
                 other._handle = VK_NULL_HANDLE;
-                other._release = [](T, VkDevice, const VkAllocationCallbacks*){};
+                other._release = [](T){};
             }
 
             T& get() {
@@ -43,6 +43,7 @@ namespace vkh {
             void release() {
                 if(_handle != VK_NULL_HANDLE){
                     _release(_handle);
+                    _handle = VK_NULL_HANDLE;
                 }
             }
 
@@ -61,6 +62,12 @@ namespace vkh {
             VkUniqueHandle(T handle) : VkUniqueHandleBase<T>(handle, [](T){
                     assert(false && "Unsupported handle type");
                 }) {}
+
+            VkUniqueHandle(T&& other) : VkUniqueHandleBase<T>(std::move(other)) {}
+            VkUniqueHandle& operator=(T&& other) {
+                VkUniqueHandleBase<T>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -75,6 +82,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkInstance>(handle, [allocCallbacks](VkInstance handle){
                     vkDestroyInstance(handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkInstance>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkInstance>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -86,6 +100,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkPhysicalDevice>(handle, [](VkPhysicalDevice handle){
                     //no release required
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkPhysicalDevice>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkPhysicalDevice>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -100,6 +121,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDevice>(handle, [allocCallbacks](VkDevice handle){
                     vkDestroyDevice(handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDevice>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDevice>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -111,6 +139,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkQueue>(handle, [](VkQueue handle){
                     //no release required
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkQueue>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkQueue>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -125,6 +160,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkSemaphore>(handle, [device, allocCallbacks](VkSemaphore handle){
                     vkDestroySemaphore(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkSemaphore>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkSemaphore>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -136,6 +178,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkCommandBuffer>(handle, [device, pool](VkCommandBuffer handle){
                     vkFreeCommandBuffers(device, pool, 1, &handle);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkCommandBuffer>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkCommandBuffer>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -150,6 +199,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkFence>(handle, [device, allocCallbacks](VkFence handle){
                     vkDestroyFence(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkFence>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkFence>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -164,6 +220,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDeviceMemory>(handle, [device, allocCallbacks](VkDeviceMemory handle){
                     vkFreeMemory(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDeviceMemory>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDeviceMemory>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -178,6 +241,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkBuffer>(handle, [device, allocCallbacks](VkBuffer handle){
                     vkDestroyBuffer(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkBuffer>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkBuffer>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -192,6 +262,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkImage>(handle, [device, allocCallbacks](VkImage handle){
                     vkDestroyImage(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkImage>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkImage>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -206,6 +283,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkEvent>(handle, [device, allocCallbacks](VkEvent handle){
                     vkDestroyEvent(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkEvent>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkEvent>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -220,6 +304,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkQueryPool>(handle, [device, allocCallbacks](VkQueryPool handle){
                     vkDestroyQueryPool(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkQueryPool>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkQueryPool>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -234,6 +325,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkBufferView>(handle, [device, allocCallbacks](VkBufferView handle){
                     vkDestroyBufferView(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkBufferView>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkBufferView>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -248,6 +346,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkImageView>(handle, [device, allocCallbacks](VkImageView handle){
                     vkDestroyImageView(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkImageView>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkImageView>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -262,6 +367,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkShaderModule>(handle, [device, allocCallbacks](VkShaderModule handle){
                     vkDestroyShaderModule(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkShaderModule>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkShaderModule>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -276,6 +388,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkPipelineCache>(handle, [device, allocCallbacks](VkPipelineCache handle){
                     vkDestroyPipelineCache(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkPipelineCache>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkPipelineCache>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -290,6 +409,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkPipelineLayout>(handle, [device, allocCallbacks](VkPipelineLayout handle){
                     vkDestroyPipelineLayout(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkPipelineLayout>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkPipelineLayout>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -304,6 +430,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkRenderPass>(handle, [device, allocCallbacks](VkRenderPass handle){
                     vkDestroyRenderPass(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkRenderPass>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkRenderPass>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -318,6 +451,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkPipeline>(handle, [device, allocCallbacks](VkPipeline handle){
                     vkDestroyPipeline(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkPipeline>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkPipeline>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -332,6 +472,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDescriptorSetLayout>(handle, [device, allocCallbacks](VkDescriptorSetLayout handle){
                     vkDestroyDescriptorSetLayout(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDescriptorSetLayout>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDescriptorSetLayout>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -346,6 +493,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkSampler>(handle, [device, allocCallbacks](VkSampler handle){
                     vkDestroySampler(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkSampler>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkSampler>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -360,6 +514,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDescriptorPool>(handle, [device, allocCallbacks](VkDescriptorPool handle){
                     vkDestroyDescriptorPool(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDescriptorPool>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDescriptorPool>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -371,6 +532,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDescriptorSet>(handle, [device, pool](VkDescriptorSet handle){
                     vkFreeDescriptorSets(device, pool, 1, &handle);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDescriptorSet>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDescriptorSet>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -385,6 +553,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkFramebuffer>(handle, [device, allocCallbacks](VkFramebuffer handle){
                     vkDestroyFramebuffer(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkFramebuffer>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkFramebuffer>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -399,6 +574,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkCommandPool>(handle, [device, allocCallbacks](VkCommandPool handle){
                     vkDestroyCommandPool(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkCommandPool>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkCommandPool>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -413,6 +595,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkSamplerYcbcrConversion>(handle, [device, allocCallbacks](VkSamplerYcbcrConversion handle){
                     vkDestroySamplerYcbcrConversion(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkSamplerYcbcrConversion>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkSamplerYcbcrConversion>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -427,6 +616,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkDescriptorUpdateTemplate>(handle, [device, allocCallbacks](VkDescriptorUpdateTemplate handle){
                     vkDestroyDescriptorUpdateTemplate(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDescriptorUpdateTemplate>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDescriptorUpdateTemplate>::operator=(std::move(other));
+                return *this;
+            }
     };
 
 
@@ -443,6 +639,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkSurfaceKHR>(handle, [instance, allocCallbacks](VkSurfaceKHR handle){
                     vkDestroySurfaceKHR(instance, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkSurfaceKHR>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkSurfaceKHR>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -457,6 +660,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkSwapchainKHR>(handle, [device, allocCallbacks](VkSwapchainKHR handle){
                     vkDestroySwapchainKHR(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkSwapchainKHR>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkSwapchainKHR>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -469,8 +679,18 @@ namespace vkh {
 
             VkUniqueHandle(VkDebugUtilsMessengerEXT handle, VkInstance instance, const VkAllocationCallbacks* allocCallbacks) 
                 : VkUniqueHandleBase<VkDebugUtilsMessengerEXT>(handle, [instance, allocCallbacks](VkDebugUtilsMessengerEXT handle){
-                    vkDestroyDebugUtilsMessengerEXT(instance, handle, allocCallbacks);
+                    auto destroyDebugMessenger = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,"vkDestroyDebugUtilsMessengerEXT");
+                    if (destroyDebugMessenger != nullptr) {
+                        destroyDebugMessenger(instance, handle, allocCallbacks);
+                    }
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDebugUtilsMessengerEXT>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDebugUtilsMessengerEXT>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -483,8 +703,18 @@ namespace vkh {
 
             VkUniqueHandle(VkDebugReportCallbackEXT handle, VkInstance instance, const VkAllocationCallbacks* allocCallbacks) 
                 : VkUniqueHandleBase<VkDebugReportCallbackEXT>(handle, [instance, allocCallbacks](VkDebugReportCallbackEXT handle){
-                    vkDestroyDebugReportCallbackEXT(instance, handle, allocCallbacks);
+                    auto destroyDebugReportCallback = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance,"vkDestroyDebugReportCallbackEXT");
+                    if (destroyDebugReportCallback != nullptr) {
+                        destroyDebugReportCallback(instance, handle, allocCallbacks);
+                    }
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkDebugReportCallbackEXT>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkDebugReportCallbackEXT>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -499,6 +729,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkIndirectCommandsLayoutNVX>(handle, [device, allocCallbacks](VkIndirectCommandsLayoutNVX handle){
                     vkDestroyIndirectCommandsLayoutNVX(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkIndirectCommandsLayoutNVX>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkIndirectCommandsLayoutNVX>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -513,6 +750,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkObjectTableNVX>(handle, [device, allocCallbacks](VkObjectTableNVX handle){
                     vkDestroyObjectTableNVX(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkObjectTableNVX>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkObjectTableNVX>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -527,6 +771,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkValidationCacheEXT>(handle, [device, allocCallbacks](VkValidationCacheEXT handle){
                     vkDestroyValidationCacheEXT(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkValidationCacheEXT>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkValidationCacheEXT>::operator=(std::move(other));
+                return *this;
+            }
     };
 
     template <>
@@ -541,6 +792,13 @@ namespace vkh {
                 : VkUniqueHandleBase<VkAccelerationStructureNV>(handle, [device, allocCallbacks](VkAccelerationStructureNV handle){
                     vkDestroyAccelerationStructureNV(device, handle, allocCallbacks);
                 }) {}
+
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkAccelerationStructureNV>(std::move(other)) {}
+
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkAccelerationStructureNV>::operator=(std::move(other));
+                return *this;
+            }
     };
 }
 
