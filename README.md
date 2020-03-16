@@ -81,12 +81,65 @@ For member variable initialization, initialize using default constructor, then u
 
 //Define member variable vkh::VkUniqueHandle<VkSwapchainKHR> m_vkSwapChain;
 
-void createSwapChain() {
+void YourRenderer::createSwapChain() {
 // initialize with a new null handle and the device that will be used during creation
 m_vkSwapChain = std::move(vkh::VkUniqueHandle<VkSwapchainKHR>(VK_NULL_HANDLE, vkDevice));
 
 VkSwapchainCreateInfoKHR createInfo = {};
 // pass a reference to the real handle during creation
 vkCreateSwapchainKHR(m_vkDevice, &createInfo, nullptr, &m_vkSwapChain.get());
+}
+```
+
+Release order can be controlled using manual release:
+```cpp
+
+YourRenderer::~YourRenderer() {
+_vkDevice.release();
+_vkSurface.release();
+_vkInstance.release();
+}
+```
+
+Easily extensible to define custom handles:
+```cpp
+
+//ensure that the library header is included first
+#include "vkh/VkUniqueHandle.h"
+
+namespace vkh {
+
+    // define new VkUniqueHandle template specialization for your custom handle (VkCustomHandle) under vkh namespace
+    template <>
+    class VkUniqueHandle<VkCustomHandle> : public VkUniqueHandleBase<VkCustomHandle> {
+        public:
+            
+            // define constructor that takes your handle with any additional data required for release
+            // call VkUniqueHandleBase constructor with your handle and lambda destructor
+            // add your additional data to the lambda capture list
+            VkUniqueHandle(VkCustomHandle handle, AdditionalData1* data1, AdditionalData2 data2) 
+                : VkUniqueHandleBase<VkCustomHandle>(handle, [data1, data2](VkCustomHandle handle){
+                    // call your custom handle release function
+                    vkDestroyCustomHandle(handle, data1, data2);
+                }) {}
+                
+            // define default constructor for convenience
+            VkUniqueHandle() : VkUniqueHandle(nullptr, nullptr, {}) {}
+
+            // override move constructor
+            VkUniqueHandle(VkUniqueHandle&& other) : VkUniqueHandleBase<VkCustomHandle>(std::move(other)) {}
+
+            // override move assignment operator
+            VkUniqueHandle& operator=(VkUniqueHandle&& other){
+                VkUniqueHandleBase<VkCustomHandle>::operator=(std::move(other));
+                return *this;
+            }
+    };
+}
+
+// Then use just like any other handle
+void YourRenderer::createCustomHandle() {
+ m_vkCustomHandle = std::move(vkh::VkUniqueHandle<VkCustomHandle>(VK_NULL_HANDLE, m_additionalData1, m_additionalData2));
+ vkCreateCustomHandle(&m_vkCustomHandle.get());
 }
 ```
