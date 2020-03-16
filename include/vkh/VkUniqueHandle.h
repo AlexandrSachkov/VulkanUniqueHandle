@@ -36,6 +36,10 @@ namespace vkh {
                 return _handle;
             }
 
+            bool isValid() {
+                return _handle != VK_NULL_HANDLE;
+            }
+
             ~VkUniqueHandleBase() {
                 release();
             }
