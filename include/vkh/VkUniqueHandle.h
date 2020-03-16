@@ -56,6 +56,8 @@ namespace vkh {
 
                 other._handle = VK_NULL_HANDLE;
                 other._release = [](T){};
+
+                return *this;
             }
 
             T& get() {
