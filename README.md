@@ -143,3 +143,6 @@ void YourRenderer::createCustomHandle() {
  vkCreateCustomHandle(&m_vkCustomHandle.get());
 }
 ```
+
+## Licensing
+VulkanUniqueHandle is licensed under the MIT license. 
