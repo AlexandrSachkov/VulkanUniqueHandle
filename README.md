@@ -2,6 +2,8 @@
 
 This is a simple header-only wrapper around Vulkan API handles that turns them into unique handles with scoped lifetimes (analogous to std::unique_ptr).
 
+Vulkan API does not provide any means for managing its handles. However, managing them yourself is difficult because each handle requires a unique method for release as well as some additional data like instance/device/allocator (others don't require a release at all). So I wrote this library for myself but decided to share in order to save you from this tedious work. 
+
 ## Benefits
  <ul>
   <li>Automatic release when handle goes out of scope</li>
